@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luka Jeremic Blog</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Reddit's nightmare</h1>
+        <figure>
+            <span>Username:</span>
+            <span id="username"><Button class="setUsername-button" onclick="setUsernameInLocal()">Set username</Button></span>
+        </figure>
+    </header>
+
+    <section class="create-thread">
+        <h2>What do you want to talk about?</h2>
+        <input type="text" id="newThreadTitle" placeholder="Could be whatever...">
+        <button onclick="createNewThread()">Create new thread!</button>
+    </section>
+
+    <main>
+        <h2>Active threads and discussions</h2>
+
+        <div class="threads-holder" id="threadsHolder">
+
+        </div>
+    </main>
+
+    <section class="thread-details-holder hidden" id="threadDetailsHolder">
+        <span id="threadId" hidden></span>
+        <figure>
+            <h2 class="thread-title" id="threadTitle">neki title</h2>
+            <span class="close-btn" onclick="toggleThreadDetailsHolder()">x</span>
+        </figure>
+
+        <div class="comments-holder" id="commentsHolder">
+            
+        </div>
+
+        <div class="input">
+            <input type="text" placeholder="Leave a comment..." id="newCommentText">
+            <button onclick="addComment()">submit</button>
+        </div>
+    </section>
+
+
+    <script>
+        let apiUrl = "http://localhost:8080"
+
+        //initial function call to setup website
+        setDom()
+        function setDom(){
+            //set header values
+            setHeader()
+
+            //load threads
+            setThreads()
+        }
+
+        //todo handle username state
+        function setHeader(){
+            let usernameElement = document.getElementById("username")
+
+            let username = getUsernameFromLocal()
+            if(!username){
+                alert("Please set username")
+                return
+            }
+
+            usernameElement.innerHTML = '<span id="usernameText">' + username + '</span>' + '<Button class="setUsername-button" onclick="setUsernameInLocal()">Change username</Button>'
+        }
+
+        function getUsernameFromLocal(){
+            return localStorage.getItem('username')
+        }
+
+        function setUsernameInLocal(){
+            localStorage.setItem('username', prompt("Input your new username!"));
+
+            //new username has been set, reload header
+            setHeader()
+        }
+
+        function createNewThread(){
+            let newThreadTitle = document.getElementById("newThreadTitle").value
+            let username = getUsernameFromLocal();
+
+            if(!username){
+                alert("Please set username")
+                return
+            }
+
+            fetch(apiUrl + "/api/createThread", {
+                method: "POST",
+                headers:{'content-type': 'application/json'},
+                body: JSON.stringify({
+                    thread_title: newThreadTitle,
+                    created_by: username                    
+                })
+            }).then(e=>{
+                if(e.status == 200){
+                    //thread successfully created
+                    setThreads()
+                }else{
+                    alert("Failed to create new thread")
+                }
+            })
+
+        }
+
+
+        function setThreads(){
+            let threadsHolder = document.getElementById("threadsHolder")
+
+            fetch(apiUrl + "/api/getThreads").then(res=>res.json()).then(response=>{
+                threadsHolder.innerHTML = ""
+                response.forEach(thread => { 
+                    threadsHolder.innerHTML += 
+                        `
+                        <div class="thread">
+                            <p class="thread-title">${thread.threadTitle}</p>
+                            <span class="created-by">Creator: ${thread.createdBy}</span>
+                            <span class="comments-amount">Comments: ${thread.comments.length}</span>
+                            <button onclick="loadThread(${thread.threadId})">See more...</button>
+                        </div>
+                        `
+                    
+                });
+            })
+            //function used to load new threads into dom
+            
+        }
+
+        function loadThread(threadId){
+            let threadDetailsHolder = document.getElementById("threadDetailsHolder")
+            fetch(apiUrl + "/api/getSpecificThread/" + threadId).then(e=>e.json()).then(resp=>{
+                threadDetailsHolder.querySelector("#threadTitle").innerHTML = resp.threadTitle
+                threadDetailsHolder.querySelector("#threadId").innerHTML = threadId
+                // todo: add some more details to thread details
+                threadDetailsHolder.querySelector("#commentsHolder").innerHTML = ""
+                
+                resp.comments.forEach(comment=>{
+                    threadDetailsHolder.querySelector("#commentsHolder").innerHTML += `
+                        <div class="comment">
+                            <h3>${comment.createdBy} said:</h3>
+                            <p>${comment.commentText}</p>
+                            <span>Commented at: ${comment.createdAt}</span>
+                        </div>
+                    `
+                })
+                
+                
+                toggleThreadDetailsHolder(true)
+            })
+        }
+
+        function toggleThreadDetailsHolder(state){
+            let element = document.getElementById("threadDetailsHolder")
+            console.log(state)
+
+            if(state){
+                element.classList.remove("hidden")
+            }else if(!state){
+                element.classList.add("hidden")
+            }else{
+                element.classList.toggle("hidden")
+            }
+        }
+
+
+        function addComment(){
+            let threadId = document.getElementById("threadId").innerHTML
+            let commentText = document.getElementById("newCommentText").value
+            let username = getUsernameFromLocal()
+
+            if (commentText.trim().length < 1) {
+                console.log(commentText.trim().length)
+                alert("You have to input sommething to be able to comment")
+                return
+            }
+
+            if(!username){
+                alert("Please set username")
+                return
+            }
+
+
+            fetch(apiUrl + "/api/createComment", {
+                method: "POST",
+                headers:{'content-type': 'application/json'},
+                body: JSON.stringify({
+                    created_by: username,
+                    comment_text: commentText,
+                    thread_id: threadId
+                })
+            }).then(e=>{
+                if(e.status == 200){
+                    loadThread(threadId)
+                    setThreads()
+                }
+                else{
+                    alert("Failed to create new comment")
+                }
+            })
+        }
+    </script>
+</body>
+</html>

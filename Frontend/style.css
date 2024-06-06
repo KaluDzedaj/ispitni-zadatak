@@ -1,0 +1,165 @@
+*{
+    margin: 0%;
+    padding: 0%;
+}
+
+/* HEADER */
+
+header{
+    width: calc(100vw - 80px);
+    background-color: rgb(150, 150, 250);
+    padding: 10px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header > figure{
+    margin-right: 50px;
+}
+
+#usernameText{
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.setUsername-button{
+    margin: 0 8px;
+}
+
+/* CREATE THREAD */
+.create-thread{
+    padding: 20px 40px;
+}
+
+/* THREADS */
+main{
+    padding: 40px;
+}
+
+main > h2{
+    margin-bottom: 20px;
+}
+
+.threads-holder{
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 20px;
+}
+
+.thread {
+    display: grid;
+    grid-template-columns: auto auto;
+    max-width: 500px;
+    border: 2px solid black;
+    border-radius: 14px;
+    padding: 10px 20px;
+    gap: 10px;
+}
+
+.thread > .thread-title {
+    font-weight: bold;
+    font-size: 1.3rem;
+    grid-column: span 2;
+}
+
+.thread > button {
+    border: 1px solid black;
+    border-radius: 4px;
+    padding: 5px 10px;
+    grid-column: span 2;
+}
+
+.thread > * {
+    border: 1px solid gray;
+    padding: 5px;
+    background-color: #f9f9f9;
+}
+
+/* THREAD DETAILS */
+.thread-details-holder{
+    width: 90vw;
+    height: 90vh;
+    position: absolute;
+    background-color: white;
+    top: 5vh;
+    left: 5vw;
+    box-shadow: 0px 0px 125px 135px rgba(0,0,0,0.66);
+    opacity: 1;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+}
+
+.thread-details-holder > figure{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    position: relative;
+    border: 2px solid black;
+    border-radius: 14px;
+    padding: 10px 20px;
+    min-width: 500px;
+    margin: 15px auto;
+}
+
+.thread-title {
+    margin: 0;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 5px;
+    cursor: pointer;
+    font-size: 1.3rem;
+    border: 2px solid black;
+    border-radius: 14px;
+    font-weight: bold;
+    padding: 5px 10px;
+}
+
+.comments-holder{
+    flex-grow: 1;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    overflow-x: auto;
+}
+
+.comment{
+    width: 70%;
+    border: 1px solid black;
+    border-radius: 14px;
+    padding: 10px 20px;
+    margin: 20px 0;
+}
+
+.comment > *{
+    margin: 4px;
+}
+
+.thread-details-holder > .input{
+    margin: 40px 0;
+    height: 4rem;
+}
+
+.thread-details-holder > .input > input{
+    width: 250px;
+}
+
+.thread-details-holder > .input > *{
+    height: 100%;
+    padding: 0 10px;
+}
+
+/* HELPER CLASSES */
+.hidden{
+    display: none;
+}
